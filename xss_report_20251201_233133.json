@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "url": "http://localhost:8080/search",
+      "parameter": "q",
+      "payload": "<img src=x onmouseover=alert(1)>",
+      "severity": "HIGH",
+      "verified": true
+    },
+    {
+      "url": "http://localhost:8080/profile",
+      "parameter": "id",
+      "payload": "<img src=x onmouseover=alert(1)>",
+      "severity": "HIGH",
+      "verified": true
+    }
+  ],
+  "stats": {
+    "total_tests": 102,
+    "blocks": 0
+  },
+  "timestamp": "2025-12-01T23:31:33.557346"
+}
